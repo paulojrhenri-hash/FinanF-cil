@@ -1022,24 +1022,19 @@ Regras:
   }
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/analisar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        system: sys,
-        messages
-      })
+      body: JSON.stringify({ system: sys, messages, isPDF })
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error('Erro da API (' + res.status + '): ' + (data.error?.message || JSON.stringify(data)));
+      throw new Error('Erro: ' + (data.error || 'tente novamente'));
     }
 
-    const rawText = (data.content||[]).map(b => b.text||'').join('');
+    const rawText = data.result || '';
     if (!rawText.trim()) throw new Error('IA retornou resposta vazia');
 
     const parsed = extractJSON(rawText);

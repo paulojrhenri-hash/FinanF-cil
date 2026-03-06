@@ -1,2 +1,2 @@
-# FinanF-cil
+# FinanFácil
 Auxiliador de contabilidade financeira

@@ -213,6 +213,8 @@ main {
 
 /* ── UPLOAD ZONE ── */
 .upload-zone {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   background: var(--white);
   border: 2px dashed var(--border2);
   border-radius: var(--radius);
@@ -797,7 +799,7 @@ footer strong { color: var(--green); }
   </div>
 
   <!-- UPLOAD -->
-  <div class="upload-zone" id="uploadZone">
+  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
     <div class="upload-icon-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
@@ -813,13 +815,13 @@ footer strong { color: var(--green); }
       <span class="fmt-pill">CSV</span>
       <span class="fmt-pill">TXT</span>
     </div>
-    <button class="btn-primary" onclick="document.getElementById('fileInput').click()">
+    <button class="btn-primary" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
       </svg>
       Selecionar arquivo
     </button>
-    <input type="file" id="fileInput" accept=".ofx,.pdf,.csv,.txt">
+    <input type="file" id="fileInput" accept=".ofx,.pdf,.csv,.txt,application/pdf,text/plain">
     <p class="upload-hint">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Seus dados são processados com segurança e não são armazenados
@@ -942,7 +944,7 @@ async function readOFXRobust(file) {
     try {
       const txt = await toText(file, enc);
       const good = (txt.match(/[A-Za-z0-9<>]/g)||[]).length;
-      const bad  = (txt.match(/[��]/g)||[]).length;
+      const bad  = (txt.match(/[  ]/g)||[]).length;
       const score = good - bad * 10;
       if (score > bestScore) { bestScore = score; bestText = txt; }
     } catch(e) {}

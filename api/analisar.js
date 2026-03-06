@@ -13,16 +13,10 @@ export default async function handler(req, res) {
     const { system, messages } = req.body;
     if (!system || !messages) return res.status(400).json({ error: 'Dados incompletos' });
 
-    // Log what we're sending (first 500 chars of user message)
-    const userMsg = typeof messages[0]?.content === 'string' 
-      ? messages[0].content.substring(0, 500)
-      : 'PDF/binary content';
-    console.log('Processing request, content preview:', userMsg);
-
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
@@ -38,57 +32,62 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Anthropic error:', JSON.stringify(data));
       return res.status(response.status).json({
         error: data.error?.message || 'Erro na API do Claude'
       });
     }
 
-    const result = (data.content || [])
+    let result = (data.content || [])
       .filter(b => b.type === 'text')
       .map(b => b.text)
       .join('');
-
-    console.log('Claude response (first 500 chars):', result.substring(0, 500));
 
     if (!result || result.trim().length === 0) {
       return res.status(500).json({ error: 'Resposta vazia da IA' });
     }
 
-    // Aggressive JSON extraction
-    let cleaned = result.trim();
+    // Clean markdown fences
+    result = result.trim();
+    result = result.replace(/^```json\s*/im, '').replace(/^```\s*/im, '').replace(/```\s*$/im, '').trim();
 
-    // Remove markdown fences
-    cleaned = cleaned.replace(/^```json\s*/im, '').replace(/^```\s*/im, '').replace(/```\s*$/im, '').trim();
+    // Extract JSON object
+    const firstBrace = result.indexOf('{');
+    const lastBrace = result.lastIndexOf('}');
 
-    // Find outermost JSON object
-    const firstBrace = cleaned.indexOf('{');
-    const lastBrace = cleaned.lastIndexOf('}');
-
-    if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
-      console.error('No JSON braces found in:', cleaned.substring(0, 300));
-      return res.status(500).json({ 
-        error: 'IA não retornou JSON. Resposta: ' + cleaned.substring(0, 200)
-      });
+    if (firstBrace === -1 || lastBrace <= firstBrace) {
+      return res.status(500).json({ error: 'IA não retornou JSON válido. Tente novamente.' });
     }
 
-    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+    result = result.slice(firstBrace, lastBrace + 1);
+
+    // Fix common JSON issues with special characters
+    // Replace unescaped control characters
+    result = result.replace(/[\u0000-\u001F\u007F]/g, ' ');
 
     // Try to parse
     try {
-      JSON.parse(cleaned);
-      console.log('JSON valid, returning result');
-      return res.status(200).json({ result: cleaned });
+      const parsed = JSON.parse(result);
+      // Re-stringify to ensure clean UTF-8 JSON
+      const clean = JSON.stringify(parsed);
+      return res.status(200).json({ result: clean });
     } catch(e) {
-      console.error('JSON parse error:', e.message);
-      console.error('Attempted to parse:', cleaned.substring(0, 500));
-      return res.status(500).json({
-        error: 'Formato inválido. Tente novamente com o mesmo arquivo.'
-      });
+      // Try fixing common issues
+      try {
+        // Fix trailing commas
+        let fixed = result.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+        // Fix unescaped newlines inside strings
+        fixed = fixed.replace(/(?<=":.*)\n(?=.*")/g, '\\n');
+        const parsed = JSON.parse(fixed);
+        const clean = JSON.stringify(parsed);
+        return res.status(200).json({ result: clean });
+      } catch(e2) {
+        console.error('JSON parse failed:', e2.message, result.substring(0, 300));
+        return res.status(500).json({ error: 'Erro ao processar resposta. Tente novamente.' });
+      }
     }
 
   } catch (err) {
-    console.error('Server error:', err.message, err.stack);
+    console.error('Server error:', err.message);
     return res.status(500).json({ error: 'Erro interno: ' + err.message });
   }
 }

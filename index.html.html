@@ -1133,15 +1133,21 @@ function parseOFX(raw) {
     return m ? m[1].trim() : '';
   };
 
+  // Handles dates like: 20260302000000[-3:GMT] or 20260302 or 20260302120000
   const fmtDate = (d) => {
-    if (!d || d.length < 8) return d || '';
-    const clean = d.substring(0, 8);
-    return clean.substring(6,8) + '/' + clean.substring(4,6) + '/' + clean.substring(0,4);
+    if (!d) return '';
+    // Remove timezone part [-3:GMT] or [+3:BRT] etc
+    d = d.replace(/\[.*\]/, '').trim();
+    if (d.length < 8) return d;
+    const y = d.substring(0,4);
+    const m = d.substring(4,6);
+    const day = d.substring(6,8);
+    return day + '/' + m + '/' + y;
   };
 
   const transactions = [];
 
-  // Try XML format first
+  // XML format: <STMTTRN>...</STMTTRN>
   const xmlRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi;
   let match;
   while ((match = xmlRegex.exec(raw)) !== null) {
@@ -1151,10 +1157,17 @@ function parseOFX(raw) {
     const trnamt = tag(block, 'TRNAMT');
     const memo = tag(block, 'MEMO') || tag(block, 'NAME') || 'Transacao';
     const amount = parseFloat((trnamt || '0').replace(',', '.')) || 0;
-    transactions.push({ date: fmtDate(dtposted), memo, amount, trntype });
+    if (trnamt) {
+      transactions.push({
+        date: fmtDate(dtposted),
+        memo: memo.trim(),
+        amount,
+        trntype
+      });
+    }
   }
 
-  // If no transactions found, try SGML line-by-line format
+  // SGML format fallback (no closing tags)
   if (transactions.length === 0) {
     const lines = raw.split('\n');
     let current = null;
@@ -1166,41 +1179,57 @@ function parseOFX(raw) {
         current = null; continue;
       }
       if (!current) continue;
-      const m_type = l.match(/<TRNTYPE>(.+)/i);
-      const m_date = l.match(/<DTPOSTED>(.+)/i);
-      const m_amt  = l.match(/<TRNAMT>(.+)/i);
-      const m_memo = l.match(/<MEMO>(.+)/i);
-      const m_name = l.match(/<NAME>(.+)/i);
-      if (m_type) current.trntype = m_type[1].trim();
-      if (m_date) current.date = fmtDate(m_date[1].trim());
-      if (m_amt)  current.amount = parseFloat(m_amt[1].trim().replace(',','.')) || 0;
-      if (m_memo) current.memo = m_memo[1].trim();
-      if (m_name && !current.memo) current.memo = m_name[1].trim();
+      const mType = l.match(/<TRNTYPE>(.+)/i);
+      const mDate = l.match(/<DTPOSTED>(.+)/i);
+      const mAmt  = l.match(/<TRNAMT>(.+)/i);
+      const mMemo = l.match(/<MEMO>(.+)/i);
+      const mName = l.match(/<NAME>(.+)/i);
+      if (mType) current.trntype = mType[1].trim();
+      if (mDate) current.date = fmtDate(mDate[1].trim());
+      if (mAmt)  current.amount = parseFloat(mAmt[1].trim().replace(',','.')) || 0;
+      if (mMemo) current.memo = mMemo[1].trim();
+      if (mName && !current.memo) current.memo = mName[1].trim();
     }
     if (current && current.amount !== undefined) transactions.push(current);
   }
 
+  // Extract period and balance
   const ledgerBal = tag(raw, 'BALAMT');
-  const dtStart = tag(raw, 'DTSTART');
-  const dtEnd = tag(raw, 'DTEND');
+  const dtStart = fmtDate(tag(raw, 'DTSTART'));
+  const dtEnd   = fmtDate(tag(raw, 'DTEND'));
+  const bankId  = tag(raw, 'BANKID') || '';
+  const acctId  = tag(raw, 'ACCTID') || '';
 
-  return { transactions, ledgerBal, dtStart, dtEnd };
+  return { transactions, ledgerBal, dtStart, dtEnd, bankId, acctId };
 }
 
 function ofxToReadable(ofx) {
-  const { transactions, ledgerBal, dtStart, dtEnd } = ofx;
+  const { transactions, ledgerBal, dtStart, dtEnd, bankId, acctId } = ofx;
+
+  // Calculate totals
+  let totalCredito = 0, totalDebito = 0;
+  transactions.forEach(t => {
+    if (t.amount > 0) totalCredito += t.amount;
+    else totalDebito += Math.abs(t.amount);
+  });
+
   let text = 'EXTRATO BANCARIO\n';
-  if (dtStart) text += 'Periodo: ' + dtStart;
-  if (dtEnd)   text += ' a ' + dtEnd;
-  text += '\nSaldo: R$ ' + (ledgerBal || '0') + '\n';
-  text += 'Total: ' + transactions.length + ' transacoes\n\n';
+  if (bankId)  text += 'Banco: ' + bankId + '\n';
+  if (acctId)  text += 'Conta: ' + acctId + '\n';
+  if (dtStart) text += 'Periodo: ' + dtStart + ' a ' + (dtEnd || '') + '\n';
+  text += 'Saldo final: R$ ' + (ledgerBal || '0') + '\n';
+  text += 'Total creditos: R$ ' + totalCredito.toFixed(2) + '\n';
+  text += 'Total debitos: R$ ' + totalDebito.toFixed(2) + '\n';
+  text += 'Quantidade de transacoes: ' + transactions.length + '\n\n';
   text += 'DATA | VALOR | TIPO | DESCRICAO\n';
-  text += '-'.repeat(60) + '\n';
+  text += '-'.repeat(80) + '\n';
+
   transactions.forEach(t => {
     const tipo = (t.amount || 0) >= 0 ? 'CREDITO' : 'DEBITO';
-    const val = 'R$ ' + Math.abs(t.amount || 0).toFixed(2);
-    text += (t.date||'') + ' | ' + val + ' | ' + tipo + ' | ' + (t.memo||'') + '\n';
+    const val  = 'R$ ' + Math.abs(t.amount || 0).toFixed(2);
+    text += (t.date || '') + ' | ' + val + ' | ' + tipo + ' | ' + (t.memo || '') + '\n';
   });
+
   return text;
 }
 

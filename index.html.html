@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinanFácil — Entenda suas finanças em segundos</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f5f0;
+  --bg2: #edeae3;
+  --white: #ffffff;
+  --card: #ffffff;
+  --border: #e2ddd6;
+  --border2: #d4cfc7;
+  --green: #1a7a4a;
+  --green-light: #e8f5ee;
+  --green-mid: #2da865;
+  --green-bright: #34c77a;
+  --red: #c0392b;
+  --red-light: #fdecea;
+  --amber: #b45309;
+  --amber-light: #fef3c7;
+  --blue: #1d4ed8;
+  --blue-light: #eff6ff;
+  --ink: #1c1917;
+  --ink2: #44403c;
+  --muted: #78716c;
+  --muted2: #a8a29e;
+  --head: 'Fraunces', Georgia, serif;
+  --body: 'Plus Jakarta Sans', sans-serif;
+  --radius: 20px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── TEXTURE OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.5;
+}
+
+/* ── DECORATIVE BLOBS ── */
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+.blob-1 { width: 500px; height: 500px; background: #b7f5d2; top: -150px; right: -100px; animation: blobFloat 12s ease-in-out infinite alternate; }
+.blob-2 { width: 400px; height: 400px; background: #fde68a; bottom: -100px; left: -100px; animation: blobFloat 16s ease-in-out infinite alternate-reverse; }
+.blob-3 { width: 300px; height: 300px; background: #bfdbfe; top: 40%; left: 20%; animation: blobFloat 10s ease-in-out infinite alternate; }
+
+@keyframes blobFloat {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(30px, 20px) scale(1.05); }
+}
+
+/* ── HEADER ── */
+header {
+  position: relative; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 48px;
+  background: rgba(247,245,240,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  display: flex; align-items: center; gap: 10px;
+}
+
+.logo-mark {
+  width: 38px; height: 38px;
+  background: var(--green);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(26,122,74,0.25);
+}
+
+.logo-mark svg { width: 20px; height: 20px; }
+
+.logo-text {
+  font-family: var(--head);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+}
+
+.logo-text span { color: var(--green); }
+
+.header-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(26,122,74,0.15);
+}
+.header-pill::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green-bright);
+  animation: blink 2s ease infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── MAIN ── */
+main {
+  position: relative; z-index: 10;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 64px 24px 100px;
+}
+
+/* ── HERO ── */
+.hero {
+  text-align: center;
+  margin-bottom: 52px;
+  animation: riseUp 0.7s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@keyframes riseUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600;
+  color: var(--green);
+  background: var(--green-light);
+  border: 1px solid rgba(26,122,74,0.15);
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-family: var(--head);
+  font-size: clamp(40px, 7vw, 72px);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -2.5px;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--green);
+  position: relative;
+}
+
+.hero h1 em::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 0; right: 0;
+  height: 3px;
+  background: var(--green-bright);
+  border-radius: 2px;
+  opacity: 0.4;
+}
+
+.hero p {
+  font-size: 17px;
+  color: var(--muted);
+  max-width: 480px;
+  margin: 0 auto 32px;
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+.hero-features {
+  display: flex; justify-content: center; gap: 24px;
+  flex-wrap: wrap;
+}
+
+.feat {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--ink2);
+  font-weight: 500;
+}
+
+.feat-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green-bright);
+}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone {
+  background: var(--white);
+  border: 2px dashed var(--border2);
+  border-radius: var(--radius);
+  padding: 60px 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+  box-shadow: var(--shadow);
+  animation: riseUp 0.7s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-zone::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(45,168,101,0.05) 0%, transparent 70%);
+  opacity: 0; transition: opacity 0.3s;
+}
+
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--green-mid);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.upload-zone:hover::before, .upload-zone.drag-over::before { opacity: 1; }
+
+.upload-icon-wrap {
+  width: 80px; height: 80px;
+  background: var(--green-light);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+  border: 2px solid rgba(26,122,74,0.1);
+  position: relative;
+}
+
+.upload-icon-wrap::after {
+  content: '';
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  border: 2px dashed rgba(26,122,74,0.15);
+  animation: spinDash 8s linear infinite;
+}
+
+@keyframes spinDash { to { transform: rotate(360deg); } }
+
+.upload-icon-wrap svg {
+  width: 32px; height: 32px;
+  stroke: var(--green);
+}
+
+.upload-zone h3 {
+  font-family: var(--head);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.upload-zone > p {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.fmt-pills {
+  display: flex; justify-content: center; gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.fmt-pill {
+  font-size: 12px; font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--ink2);
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--green);
+  color: #fff;
+  font-family: var(--body);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 16px 36px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(26,122,74,0.25);
+  letter-spacing: 0.2px;
+}
+
+.btn-primary:hover {
+  background: #1d8f57;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(26,122,74,0.35);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+input[type="file"] { display: none; }
+
+.upload-hint {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--muted2);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+
+.upload-hint svg { width: 14px; height: 14px; stroke: var(--muted2); }
+
+/* ── PROCESSING ── */
+.processing {
+  display: none;
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 60px 40px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  animation: riseUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+.processing.active { display: block; }
+
+.proc-ring {
+  width: 64px; height: 64px;
+  margin: 0 auto 24px;
+  position: relative;
+}
+
+.proc-ring svg {
+  width: 64px; height: 64px;
+  transform: rotate(-90deg);
+}
+
+.proc-ring circle {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.proc-ring .track { stroke: var(--bg2); }
+.proc-ring .fill {
+  stroke: var(--green);
+  stroke-dasharray: 170;
+  stroke-dashoffset: 170;
+  animation: arcFill 3.5s ease forwards;
+}
+
+@keyframes arcFill { to { stroke-dashoffset: 20; } }
+
+.processing h3 {
+  font-family: var(--head);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+}
+
+.processing p { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+
+.steps-list {
+  display: flex; flex-direction: column; gap: 10px;
+  max-width: 340px; margin: 0 auto;
+  text-align: left;
+}
+
+.step-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 13px; font-weight: 500;
+  color: var(--muted);
+  transition: all 0.3s;
+}
+
+.step-item.active {
+  background: var(--green-light);
+  border-color: rgba(26,122,74,0.2);
+  color: var(--green);
+}
+
+.step-item.done {
+  background: var(--white);
+  color: var(--ink2);
+}
+
+.step-ico {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  transition: all 0.3s;
+}
+
+.step-item.active .step-ico {
+  background: var(--green);
+  color: white;
+  box-shadow: 0 0 0 3px rgba(26,122,74,0.15);
+}
+
+.step-item.done .step-ico { background: var(--green-bright); color: white; }
+
+/* ── ERROR ── */
+.error-box {
+  display: none;
+  background: var(--red-light);
+  border: 1px solid rgba(192,57,43,0.2);
+  border-radius: var(--radius);
+  padding: 32px;
+  text-align: center;
+}
+.error-box.active { display: block; }
+.error-box h3 { font-family: var(--head); color: var(--red); margin-bottom: 8px; }
+.error-box p { color: var(--ink2); font-size: 13px; }
+
+/* ── RESULTS ── */
+.results { display: none; }
+.results.active { display: block; animation: riseUp 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+
+.results-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px; gap: 12px; flex-wrap: wrap;
+}
+
+.results-header h2 {
+  font-family: var(--head);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--white);
+  color: var(--ink2);
+  font-family: var(--body);
+  font-size: 13px; font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow);
+}
+.btn-ghost:hover { border-color: var(--green); color: var(--green); }
+
+/* ── SUMMARY CARDS ── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+  .summary-grid { grid-template-columns: 1fr; }
+  header { padding: 16px 20px; }
+  main { padding: 40px 16px 80px; }
+  .hero h1 { letter-spacing: -1.5px; }
+}
+
+.sum-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.sum-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
+.sum-card-accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+}
+.sum-card.income .sum-card-accent { background: linear-gradient(90deg, var(--green), var(--green-bright)); }
+.sum-card.expense .sum-card-accent { background: linear-gradient(90deg, #e74c3c, #ff6b6b); }
+.sum-card.balance .sum-card-accent { background: linear-gradient(90deg, #3498db, #74b9ff); }
+
+.sum-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+.sum-card.income .sum-icon { background: var(--green-light); }
+.sum-card.expense .sum-icon { background: var(--red-light); }
+.sum-card.balance .sum-icon { background: var(--blue-light); }
+
+.sum-label {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--muted2);
+  margin-bottom: 6px;
+}
+
+.sum-value {
+  font-family: var(--head);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.sum-card.income .sum-value { color: var(--green); }
+.sum-card.expense .sum-value { color: var(--red); }
+.sum-card.balance .sum-value { color: var(--blue); }
+
+.sum-sub {
+  font-size: 12px;
+  color: var(--muted2);
+}
+
+/* ── AI BOX ── */
+.ai-box {
+  background: linear-gradient(135deg, #1a7a4a 0%, #1d6b42 100%);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(26,122,74,0.2);
+}
+
+.ai-box::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+}
+
+.ai-box::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: 30%;
+  width: 150px; height: 150px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+
+.ai-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ai-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.ai-badge::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #5eff9e;
+  animation: blink 2s ease infinite;
+}
+
+.ai-title {
+  font-family: var(--head);
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.ai-text {
+  font-size: 14px;
+  line-height: 1.85;
+  color: rgba(255,255,255,0.88);
+  white-space: pre-wrap;
+  position: relative; z-index: 1;
+}
+
+/* ── SECTION LABEL ── */
+.sec-label {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted2);
+  margin-bottom: 14px;
+  margin-top: 28px;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── CATEGORIES ── */
+.cat-grid {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 8px;
+}
+
+.cat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: var(--shadow);
+  transition: all 0.2s;
+}
+.cat-card:hover { border-color: var(--border2); transform: translateX(4px); }
+
+.cat-emoji { font-size: 24px; flex-shrink: 0; }
+
+.cat-body { flex: 1; }
+
+.cat-name {
+  font-size: 14px; font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.cat-track {
+  height: 6px;
+  background: var(--bg2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.cat-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1.2s cubic-bezier(0.22,1,0.36,1);
+}
+
+.cat-right { text-align: right; flex-shrink: 0; }
+
+.cat-val {
+  font-family: var(--head);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
+
+.cat-pct {
+  font-size: 11px;
+  color: var(--muted2);
+  margin-top: 2px;
+}
+
+/* ── TRANSACTIONS ── */
+.tx-table {
+  background: var(--white);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.tx-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 16px;
+  padding: 14px 24px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted2);
+}
+
+.tx-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid rgba(226,221,214,0.5);
+  transition: background 0.15s;
+}
+.tx-row:last-child { border-bottom: none; }
+.tx-row:hover { background: var(--bg); }
+
+.tx-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tx-desc { }
+.tx-name { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.tx-cat-tag {
+  display: inline-block;
+  font-size: 10px; font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 20px;
+  background: var(--bg2);
+  color: var(--muted);
+}
+
+.tx-date-col {
+  font-size: 12px; color: var(--muted2);
+  white-space: nowrap;
+}
+
+.tx-amt {
+  font-family: var(--head);
+  font-size: 14px; font-weight: 700;
+  white-space: nowrap;
+}
+.tx-amt.cr { color: var(--green); }
+.tx-amt.db { color: var(--red); }
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 10;
+  text-align: center;
+  padding: 32px;
+  font-size: 12px;
+  color: var(--muted2);
+  border-top: 1px solid var(--border);
+}
+
+footer strong { color: var(--green); }
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+        <polyline points="16 7 22 7 22 13"/>
+      </svg>
+    </div>
+    <div class="logo-text">Finan<span>Fácil</span></div>
+  </div>
+  <div class="header-pill">IA Ativa</div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">✦ Análise financeira com inteligência artificial</div>
+    <h1>Entenda seu dinheiro<br>de forma <em>simples</em></h1>
+    <p>Faça upload do seu extrato bancário e receba em segundos um resumo completo, categorizado e com insights personalizados.</p>
+    <div class="hero-features">
+      <div class="feat"><div class="feat-dot"></div> Suporte a OFX, PDF e CSV</div>
+      <div class="feat"><div class="feat-dot"></div> 100% privado</div>
+      <div class="feat"><div class="feat-dot"></div> Resultado em segundos</div>
+    </div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="upload-zone" id="uploadZone">
+    <div class="upload-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <h3>Arraste seu extrato aqui</h3>
+    <p>ou clique no botão abaixo para selecionar</p>
+    <div class="fmt-pills">
+      <span class="fmt-pill">OFX</span>
+      <span class="fmt-pill">PDF</span>
+      <span class="fmt-pill">CSV</span>
+      <span class="fmt-pill">TXT</span>
+    </div>
+    <button class="btn-primary" onclick="document.getElementById('fileInput').click()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      Selecionar arquivo
+    </button>
+    <input type="file" id="fileInput" accept=".ofx,.pdf,.csv,.txt">
+    <p class="upload-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Seus dados são processados com segurança e não são armazenados
+    </p>
+  </div>
+
+  <!-- PROCESSING -->
+  <div class="processing" id="processing">
+    <div class="proc-ring">
+      <svg viewBox="0 0 60 60">
+        <circle class="track" cx="30" cy="30" r="27"/>
+        <circle class="fill" cx="30" cy="30" r="27"/>
+      </svg>
+    </div>
+    <h3>Analisando seu extrato…</h3>
+    <p>A IA está lendo e organizando suas finanças</p>
+    <div class="steps-list">
+      <div class="step-item active" id="s1"><div class="step-ico">1</div> Lendo o arquivo</div>
+      <div class="step-item" id="s2"><div class="step-ico">2</div> Identificando transações</div>
+      <div class="step-item" id="s3"><div class="step-ico">3</div> Categorizando gastos</div>
+      <div class="step-item" id="s4"><div class="step-ico">4</div> Gerando análise completa</div>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-box" id="errorBox">
+    <h3>⚠️ Erro ao processar</h3>
+    <p id="errorMsg">Não foi possível analisar o arquivo. Tente novamente com outro formato.</p>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="results-header">
+      <h2>Sua Análise Financeira</h2>
+      <button class="btn-ghost" onclick="resetApp()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        Novo extrato
+      </button>
+    </div>
+
+    <div class="summary-grid" id="summaryGrid"></div>
+
+    <div class="ai-box">
+      <div class="ai-header">
+        <div class="ai-badge">IA</div>
+        <div class="ai-title">Análise Personalizada</div>
+      </div>
+      <div class="ai-text" id="aiText"></div>
+    </div>
+
+    <div class="sec-label">Gastos por Categoria</div>
+    <div class="cat-grid" id="catGrid"></div>
+
+    <div class="sec-label">Transações</div>
+    <div class="tx-table">
+      <div class="tx-head">
+        <span></span>
+        <span>Descrição</span>
+        <span>Data</span>
+        <span>Valor</span>
+      </div>
+      <div id="txList"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Feito com ❤️ por <strong>FinanFácil</strong> &nbsp;·&nbsp; Seus dados não são armazenados &nbsp;·&nbsp; © 2025
+</footer>
+
+<script>
+const CAT_COLORS = {
+  'Alimentação':'#16a34a','Transporte':'#7c3aed','Saúde':'#dc2626',
+  'Lazer':'#d97706','Educação':'#0891b2','Moradia':'#0369a1',
+  'Compras':'#db2777','Serviços':'#4f46e5','Outros':'#78716c'
+};
+
+const zone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+
+function resetApp() {
+  ['results','errorBox'].forEach(id => document.getElementById(id).classList.remove('active'));
+  zone.style.display = '';
+  fileInput.value = '';
+  [1,2,3,4].forEach(i => document.getElementById('s'+i).className = 'step-item');
+}
+
+function showError(msg) {
+  document.getElementById('processing').classList.remove('active');
+  document.getElementById('errorBox').classList.add('active');
+  document.getElementById('errorMsg').textContent = msg;
+  zone.style.display = '';
+}
+
+async function advanceSteps() {
+  const delays = [900, 1900, 3100];
+  for (let i = 0; i < 3; i++) {
+    await new Promise(r => setTimeout(r, delays[i]));
+    document.getElementById('s'+(i+1)).className = 'step-item done';
+    document.getElementById('s'+(i+1)).querySelector('.step-ico').textContent = '✓';
+    document.getElementById('s'+(i+2)).className = 'step-item active';
+  }
+}
+
+// --- OFX helpers ---
+async function readOFXRobust(file) {
+  const encodings = ['iso-8859-1', 'utf-8', 'windows-1252'];
+  let bestText = '';
+  let bestScore = -999;
+  for (const enc of encodings) {
+    try {
+      const txt = await toText(file, enc);
+      const good = (txt.match(/[A-Za-z0-9<>]/g)||[]).length;
+      const bad  = (txt.match(/[��]/g)||[]).length;
+      const score = good - bad * 10;
+      if (score > bestScore) { bestScore = score; bestText = txt; }
+    } catch(e) {}
+  }
+  return bestText;
+}
+
+function extractJSON(raw) {
+  // 1. direct
+  try { return JSON.parse(raw); } catch {}
+  // 2. strip fences
+  const s = raw.replace(/```json/gi,'').replace(/```/g,'').trim();
+  try { return JSON.parse(s); } catch {}
+  // 3. find outermost { }
+  const a = s.indexOf('{'), b = s.lastIndexOf('}');
+  if (a !== -1 && b > a) {
+    try { return JSON.parse(s.slice(a, b+1)); } catch {}
+  }
+  throw new Error('JSON inválido na resposta da IA');
+}
+
+async function processFile(file) {
+  zone.style.display = 'none';
+  ['errorBox','results'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('processing').classList.add('active');
+  advanceSteps();
+
+  const ext = file.name.split('.').pop().toLowerCase();
+  let content = '';
+  let isPDF = false;
+
+  try {
+    if (ext === 'pdf') {
+      content = await toBase64(file);
+      isPDF = true;
+    } else if (ext === 'ofx' || ext === 'qfx') {
+      const raw = await readOFXRobust(file);
+      if (!raw || raw.trim().length < 20) throw new Error('Arquivo OFX vazio ou ilegível');
+      const ofxParsed = parseOFX(raw);
+      // Use structured text if transactions found, else fall back to raw
+      content = ofxParsed.transactions.length > 0 ? ofxToReadable(ofxParsed) : raw.substring(0, 18000);
+    } else {
+      try { content = await toText(file, 'utf-8'); }
+      catch { content = await toText(file, 'iso-8859-1'); }
+    }
+  } catch(e) {
+    showError('Erro ao ler o arquivo: ' + (e.message || 'verifique o formato.'));
+    return;
+  }
+
+  if (!content || content.trim().length < 10) {
+    showError('Arquivo vazio ou não reconhecido. Tente outro arquivo.');
+    return;
+  }
+
+  const sys = `Você é um assistente financeiro especializado em extratos bancários brasileiros.
+INSTRUÇÃO CRÍTICA: Retorne SOMENTE um objeto JSON válido. Sem texto antes ou depois. Sem markdown. Sem backticks. Comece com { e termine com }.
+
+Formato exato a retornar:
+{"periodo":"Mês/Ano","totalEntradas":0.00,"totalSaidas":0.00,"saldo":0.00,"totalTransacoes":0,"analise":"parágrafo 1\n\nparágrafo 2\n\nparágrafo 3","categorias":[{"nome":"Alimentação","valor":0.00,"emoji":"🍔"}],"transacoes":[{"data":"DD/MM/AAAA","descricao":"Nome","valor":0.00,"tipo":"debito","categoria":"Alimentação"}]}
+
+Regras:
+- valores monetários: sempre número float, nunca string
+- tipo: "credito" para entradas, "debito" para saídas
+- categorias disponíveis: Alimentação, Transporte, Saúde, Lazer, Educação, Moradia, Compras, Serviços, Outros
+- máximo 20 transações mais relevantes
+- analise: 3-4 parágrafos com insights reais, dicas práticas e tom amigável`;
+
+  let messages;
+  if (isPDF) {
+    messages = [{ role:'user', content:[
+      { type:'document', source:{ type:'base64', media_type:'application/pdf', data:content } },
+      { type:'text', text:'Analise este extrato. Retorne APENAS o JSON, sem nenhum texto extra.' }
+    ]}];
+  } else {
+    messages = [{ role:'user', content:`Analise este extrato bancário. Retorne APENAS o JSON sem texto extra:\n\n${content.substring(0,18000)}` }];
+  }
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        system: sys,
+        messages
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error('Erro da API (' + res.status + '): ' + (data.error?.message || JSON.stringify(data)));
+    }
+
+    const rawText = (data.content||[]).map(b => b.text||'').join('');
+    if (!rawText.trim()) throw new Error('IA retornou resposta vazia');
+
+    const parsed = extractJSON(rawText);
+    document.getElementById('processing').classList.remove('active');
+    render(parsed);
+
+  } catch(e) {
+    console.error('Erro ao processar:', e);
+    showError('Erro: ' + (e.message || 'tente novamente.'));
+  }
+}
+
+function fmt(v) {
+  return 'R$ ' + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function render(d) {
+  // Summary
+  document.getElementById('summaryGrid').innerHTML = `
+    <div class="sum-card income">
+      <div class="sum-card-accent"></div>
+      <div class="sum-icon">💰</div>
+      <div class="sum-label">Total Entradas</div>
+      <div class="sum-value">${fmt(d.totalEntradas)}</div>
+      <div class="sum-sub">${d.periodo||''}</div>
+    </div>
+    <div class="sum-card expense">
+      <div class="sum-card-accent"></div>
+      <div class="sum-icon">💸</div>
+      <div class="sum-label">Total Saídas</div>
+      <div class="sum-value">${fmt(d.totalSaidas)}</div>
+      <div class="sum-sub">${d.totalTransacoes||0} transações</div>
+    </div>
+    <div class="sum-card balance">
+      <div class="sum-card-accent"></div>
+      <div class="sum-icon">${(d.saldo||0) >= 0 ? '📈' : '📉'}</div>
+      <div class="sum-label">Saldo do Período</div>
+      <div class="sum-value">${fmt(d.saldo)}</div>
+      <div class="sum-sub">${(d.saldo||0) >= 0 ? 'Saldo positivo ✓' : 'Atenção: saldo negativo'}</div>
+    </div>`;
+
+  // AI
+  document.getElementById('aiText').textContent = d.analise||'Análise não disponível.';
+
+  // Categories
+  const maxV = Math.max(...(d.categorias||[]).map(c=>c.valor), 1);
+  document.getElementById('catGrid').innerHTML = (d.categorias||[])
+    .sort((a,b)=>b.valor-a.valor)
+    .map(c => {
+      const pct = Math.round((c.valor/maxV)*100);
+      const pctTotal = d.totalSaidas > 0 ? Math.round((c.valor/d.totalSaidas)*100) : 0;
+      const color = CAT_COLORS[c.nome]||'#6b7280';
+      return `<div class="cat-card">
+        <div class="cat-emoji">${c.emoji||'💳'}</div>
+        <div class="cat-body">
+          <div class="cat-name">${c.nome}</div>
+          <div class="cat-track"><div class="cat-fill" style="width:0%;background:${color}" data-pct="${pct}"></div></div>
+        </div>
+        <div class="cat-right">
+          <div class="cat-val">${fmt(c.valor)}</div>
+          <div class="cat-pct">${pctTotal}% do total</div>
+        </div>
+      </div>`;
+    }).join('');
+
+  setTimeout(() => {
+    document.querySelectorAll('.cat-fill').forEach(b => b.style.width = b.dataset.pct + '%');
+  }, 80);
+
+  // Transactions
+  document.getElementById('txList').innerHTML = (d.transacoes||[]).map(t => {
+    const isC = t.tipo === 'credito';
+    const color = CAT_COLORS[t.categoria]||'#6b7280';
+    return `<div class="tx-row">
+      <div class="tx-dot" style="background:${color}"></div>
+      <div class="tx-desc">
+        <div class="tx-name">${t.descricao}</div>
+        <span class="tx-cat-tag">${t.categoria}</span>
+      </div>
+      <div class="tx-date-col">${t.data}</div>
+      <div class="tx-amt ${isC?'cr':'db'}">${isC?'+':'-'}${fmt(t.valor)}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('results').classList.add('active');
+}
+
+function parseOFX(raw) {
+  // Remove OFX header (lines before <OFX> or <ofx>)
+  const ofxStart = raw.search(/<OFX>/i);
+  const body = ofxStart >= 0 ? raw.substring(ofxStart) : raw;
+
+  // Helper: extract tag value
+  const tag = (src, t) => {
+    const r = new RegExp(`<${t}>([^<\n\r]+)`, 'i');
+    const m = src.match(r);
+    return m ? m[1].trim() : '';
+  };
+
+  // Extract all STMTTRN blocks
+  const txRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi;
+  const transactions = [];
+  let match;
+
+  while ((match = txRegex.exec(body)) !== null) {
+    const block = match[1];
+    const trntype = tag(block, 'TRNTYPE');
+    const dtposted = tag(block, 'DTPOSTED');
+    const trnamt = tag(block, 'TRNAMT');
+    const memo = tag(block, 'MEMO') || tag(block, 'NAME') || 'Transação';
+
+    // Format date: 20250115 → 15/01/2025
+    let date = dtposted;
+    if (dtposted.length >= 8) {
+      date = `${dtposted.substring(6,8)}/${dtposted.substring(4,6)}/${dtposted.substring(0,4)}`;
+    }
+
+    const amount = parseFloat(trnamt.replace(',', '.')) || 0;
+    transactions.push({ date, memo, amount, trntype });
+  }
+
+  // Ledger balance
+  const ledgerBal = tag(body, 'BALAMT');
+  const currency = tag(body, 'CURSYM') || tag(body, 'CURDEF') || 'BRL';
+
+  // Period
+  const dtStart = tag(body, 'DTSTART');
+  const dtEnd = tag(body, 'DTEND');
+
+  return { transactions, ledgerBal, currency, dtStart, dtEnd };
+}
+
+function ofxToReadable(ofx) {
+  const { transactions, ledgerBal, dtStart, dtEnd } = ofx;
+
+  let text = `EXTRATO BANCÁRIO OFX\n`;
+  if (dtStart) text += `Período: ${dtStart.substring(6,8)}/${dtStart.substring(4,6)}/${dtStart.substring(0,4)}`;
+  if (dtEnd)   text += ` a ${dtEnd.substring(6,8)}/${dtEnd.substring(4,6)}/${dtEnd.substring(0,4)}`;
+  text += `\nSaldo final: ${ledgerBal || 'N/A'}\n`;
+  text += `Total de transações: ${transactions.length}\n\n`;
+  text += `DATA\t\tVALOR\t\tTIPO\t\tDESCRIÇÃO\n`;
+  text += `${'─'.repeat(70)}\n`;
+
+  transactions.forEach(t => {
+    const tipo = t.amount >= 0 ? 'CRÉDITO' : 'DÉBITO';
+    text += `${t.date}\t\tR$ ${Math.abs(t.amount).toFixed(2)}\t\t${tipo}\t\t${t.memo}\n`;
+  });
+
+  return text;
+}
+
+function toText(file, encoding = 'utf-8') {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsText(file, encoding);
+  });
+}
+
+function toBase64(file) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+</script>
+</body>
+</html>

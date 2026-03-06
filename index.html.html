@@ -1125,66 +1125,82 @@ function render(d) {
 }
 
 function parseOFX(raw) {
-  // Remove OFX header (lines before <OFX> or <ofx>)
-  const ofxStart = raw.search(/<OFX>/i);
-  const body = ofxStart >= 0 ? raw.substring(ofxStart) : raw;
+  raw = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
-  // Helper: extract tag value
   const tag = (src, t) => {
-    const r = new RegExp(`<${t}>([^<\n\r]+)`, 'i');
+    const r = new RegExp('<' + t + '>([^<\n\r]+)', 'i');
     const m = src.match(r);
     return m ? m[1].trim() : '';
   };
 
-  // Extract all STMTTRN blocks
-  const txRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi;
-  const transactions = [];
-  let match;
+  const fmtDate = (d) => {
+    if (!d || d.length < 8) return d || '';
+    const clean = d.substring(0, 8);
+    return clean.substring(6,8) + '/' + clean.substring(4,6) + '/' + clean.substring(0,4);
+  };
 
-  while ((match = txRegex.exec(body)) !== null) {
+  const transactions = [];
+
+  // Try XML format first
+  const xmlRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi;
+  let match;
+  while ((match = xmlRegex.exec(raw)) !== null) {
     const block = match[1];
     const trntype = tag(block, 'TRNTYPE');
     const dtposted = tag(block, 'DTPOSTED');
     const trnamt = tag(block, 'TRNAMT');
-    const memo = tag(block, 'MEMO') || tag(block, 'NAME') || 'Transação';
-
-    // Format date: 20250115 → 15/01/2025
-    let date = dtposted;
-    if (dtposted.length >= 8) {
-      date = `${dtposted.substring(6,8)}/${dtposted.substring(4,6)}/${dtposted.substring(0,4)}`;
-    }
-
-    const amount = parseFloat(trnamt.replace(',', '.')) || 0;
-    transactions.push({ date, memo, amount, trntype });
+    const memo = tag(block, 'MEMO') || tag(block, 'NAME') || 'Transacao';
+    const amount = parseFloat((trnamt || '0').replace(',', '.')) || 0;
+    transactions.push({ date: fmtDate(dtposted), memo, amount, trntype });
   }
 
-  // Ledger balance
-  const ledgerBal = tag(body, 'BALAMT');
-  const currency = tag(body, 'CURSYM') || tag(body, 'CURDEF') || 'BRL';
+  // If no transactions found, try SGML line-by-line format
+  if (transactions.length === 0) {
+    const lines = raw.split('\n');
+    let current = null;
+    for (const line of lines) {
+      const l = line.trim();
+      if (/<STMTTRN>/i.test(l)) { current = {}; continue; }
+      if (/<\/STMTTRN>/i.test(l)) {
+        if (current && current.amount !== undefined) transactions.push(current);
+        current = null; continue;
+      }
+      if (!current) continue;
+      const m_type = l.match(/<TRNTYPE>(.+)/i);
+      const m_date = l.match(/<DTPOSTED>(.+)/i);
+      const m_amt  = l.match(/<TRNAMT>(.+)/i);
+      const m_memo = l.match(/<MEMO>(.+)/i);
+      const m_name = l.match(/<NAME>(.+)/i);
+      if (m_type) current.trntype = m_type[1].trim();
+      if (m_date) current.date = fmtDate(m_date[1].trim());
+      if (m_amt)  current.amount = parseFloat(m_amt[1].trim().replace(',','.')) || 0;
+      if (m_memo) current.memo = m_memo[1].trim();
+      if (m_name && !current.memo) current.memo = m_name[1].trim();
+    }
+    if (current && current.amount !== undefined) transactions.push(current);
+  }
 
-  // Period
-  const dtStart = tag(body, 'DTSTART');
-  const dtEnd = tag(body, 'DTEND');
+  const ledgerBal = tag(raw, 'BALAMT');
+  const dtStart = tag(raw, 'DTSTART');
+  const dtEnd = tag(raw, 'DTEND');
 
-  return { transactions, ledgerBal, currency, dtStart, dtEnd };
+  return { transactions, ledgerBal, dtStart, dtEnd };
 }
 
 function ofxToReadable(ofx) {
   const { transactions, ledgerBal, dtStart, dtEnd } = ofx;
-
-  let text = `EXTRATO BANCÁRIO OFX\n`;
-  if (dtStart) text += `Período: ${dtStart.substring(6,8)}/${dtStart.substring(4,6)}/${dtStart.substring(0,4)}`;
-  if (dtEnd)   text += ` a ${dtEnd.substring(6,8)}/${dtEnd.substring(4,6)}/${dtEnd.substring(0,4)}`;
-  text += `\nSaldo final: ${ledgerBal || 'N/A'}\n`;
-  text += `Total de transações: ${transactions.length}\n\n`;
-  text += `DATA\t\tVALOR\t\tTIPO\t\tDESCRIÇÃO\n`;
-  text += `${'─'.repeat(70)}\n`;
-
+  let text = 'EXTRATO BANCARIO\n';
+  if (dtStart) text += 'Periodo: ' + dtStart;
+  if (dtEnd)   text += ' a ' + dtEnd;
+  text += '\nSaldo: R$ ' + (ledgerBal || '0') + '\n';
+  text += 'Total: ' + transactions.length + ' transacoes\n\n';
+  text += 'DATA | VALOR | TIPO | DESCRICAO\n';
+  text += '-'.repeat(60) + '\n';
   transactions.forEach(t => {
-    const tipo = t.amount >= 0 ? 'CRÉDITO' : 'DÉBITO';
-    text += `${t.date}\t\tR$ ${Math.abs(t.amount).toFixed(2)}\t\t${tipo}\t\t${t.memo}\n`;
+    const tipo = (t.amount || 0) >= 0 ? 'CREDITO' : 'DEBITO';
+    const val = 'R$ ' + Math.abs(t.amount || 0).toFixed(2);
+    text += (t.date||'') + ' | ' + val + ' | ' + tipo + ' | ' + (t.memo||'') + '\n';
   });
-
   return text;
 }
 

@@ -1312,6 +1312,8 @@ async function processFile(file) {
   let content = '';
   let isPDF = false;
 
+  let ofxData = null; // store parsed OFX data for precise totals
+
   try {
     if (ext === 'pdf') {
       content = await toBase64(file);
@@ -1319,9 +1321,8 @@ async function processFile(file) {
     } else if (ext === 'ofx' || ext === 'qfx') {
       const raw = await readOFXRobust(file);
       if (!raw || raw.trim().length < 20) throw new Error('Arquivo OFX vazio ou ilegível');
-      const ofxParsed = parseOFX(raw);
-      // Use structured text if transactions found, else fall back to raw
-      content = ofxParsed.transactions.length > 0 ? ofxToReadable(ofxParsed) : raw.substring(0, 18000);
+      ofxData = parseOFX(raw);
+      content = ofxData.transactions.length > 0 ? ofxToReadable(ofxData) : raw.substring(0, 18000);
     } else {
       try { content = await toText(file, 'utf-8'); }
       catch { content = await toText(file, 'iso-8859-1'); }
@@ -1336,6 +1337,23 @@ async function processFile(file) {
     return;
   }
 
+  // Pre-calculate exact totals from OFX (avoids AI rounding errors)
+  let exactTotals = null;
+  if (ofxData && ofxData.transactions.length > 0) {
+    let entradas = 0, saidas = 0;
+    ofxData.transactions.forEach(t => {
+      if (t.amount > 0) entradas += t.amount;
+      else saidas += Math.abs(t.amount);
+    });
+    exactTotals = {
+      totalEntradas: Math.round(entradas * 100) / 100,
+      totalSaidas: Math.round(saidas * 100) / 100,
+      saldo: Math.round(parseFloat(ofxData.ledgerBal || (entradas - saidas)) * 100) / 100,
+      totalTransacoes: ofxData.transactions.length,
+      periodo: ofxData.dtStart ? ofxData.dtStart.substring(3) : ''
+    };
+  }
+
   const sys = `Você é um assistente financeiro especializado em extratos bancários brasileiros.
 INSTRUÇÃO CRÍTICA: Retorne SOMENTE um objeto JSON válido. Sem texto antes ou depois. Sem markdown. Sem backticks. Comece com { e termine com }.
 
@@ -1347,7 +1365,8 @@ Regras:
 - tipo: "credito" para entradas, "debito" para saídas
 - categorias disponíveis: Alimentação, Transporte, Saúde, Lazer, Educação, Moradia, Compras, Serviços, Outros
 - máximo 20 transações mais relevantes
-- analise: 3-4 parágrafos com insights reais, dicas práticas e tom amigável`;
+- analise: 3-4 parágrafos com insights reais, dicas práticas e tom amigável
+- USE EXATAMENTE os valores informados no extrato, não recalcule`;
 
   let messages;
   if (isPDF) {
@@ -1376,6 +1395,16 @@ Regras:
     if (!rawText.trim()) throw new Error('IA retornou resposta vazia');
 
     const parsed = extractJSON(rawText);
+
+    // Override AI totals with exact calculated values from OFX
+    if (exactTotals) {
+      parsed.totalEntradas = exactTotals.totalEntradas;
+      parsed.totalSaidas   = exactTotals.totalSaidas;
+      parsed.saldo         = exactTotals.saldo;
+      parsed.totalTransacoes = exactTotals.totalTransacoes;
+      if (!parsed.periodo && exactTotals.periodo) parsed.periodo = exactTotals.periodo;
+    }
+
     document.getElementById('processing').classList.remove('active');
     render(parsed);
 

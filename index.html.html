@@ -752,6 +752,124 @@ input[type="file"] { display: none; }
 .tx-amt.cr { color: var(--green); }
 .tx-amt.db { color: var(--red); }
 
+/* ── BANK GUIDE ── */
+.bank-guide {
+  margin-top: 40px;
+  animation: riseUp 0.7s 0.2s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+.bank-guide-title {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted2);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.bank-guide-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.bank-tabs {
+  display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+}
+
+.bank-tab {
+  font-size: 12px; font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow);
+}
+.bank-tab:hover { border-color: var(--green); color: var(--green); }
+.bank-tab.active { background: var(--green); color: white; border-color: var(--green); box-shadow: 0 4px 12px rgba(26,122,74,0.2); }
+
+.bank-panels { }
+
+.bank-panel { display: none; }
+.bank-panel.active { display: block; }
+
+.bank-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.bank-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  transition: all 0.2s;
+}
+.bank-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+.bank-card-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bank-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.bank-icon.green { background: var(--green-light); }
+.bank-icon.amber { background: var(--amber-light); }
+.bank-icon.blue  { background: var(--blue-light); }
+
+.bank-name {
+  font-family: var(--head);
+  font-size: 14px; font-weight: 700;
+  color: var(--ink);
+}
+
+.bank-format {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px;
+  margin-bottom: 10px;
+}
+.bank-format.ofx { background: var(--green-light); color: var(--green); }
+.bank-format.pdf { background: var(--blue-light); color: var(--blue); }
+.bank-format.csv { background: var(--amber-light); color: var(--amber); }
+
+.bank-steps {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.bank-steps li {
+  font-size: 12px; color: var(--ink2);
+  display: flex; gap: 8px; align-items: flex-start;
+  line-height: 1.5;
+}
+.bank-steps li::before {
+  content: attr(data-n);
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--bg2);
+  color: var(--muted);
+  font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.warn-box {
+  background: var(--amber-light);
+  border: 1px solid rgba(180,83,9,0.15);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--amber);
+  display: flex; gap: 10px; align-items: flex-start;
+  margin-top: 12px;
+}
+
 /* ── FOOTER ── */
 footer {
   position: relative; z-index: 10;
@@ -826,6 +944,224 @@ footer strong { color: var(--green); }
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Seus dados são processados com segurança e não são armazenados
     </p>
+  </div>
+
+  <!-- BANK GUIDE -->
+  <div class="bank-guide" id="bankGuide">
+    <div class="bank-guide-title">Como exportar o extrato do seu banco</div>
+
+    <div class="bank-tabs">
+      <button class="bank-tab active" onclick="switchTab('ofx')">✅ OFX (Recomendado)</button>
+      <button class="bank-tab" onclick="switchTab('pdf')">📄 PDF</button>
+      <button class="bank-tab" onclick="switchTab('info')">ℹ️ Informações</button>
+    </div>
+
+    <div class="bank-panels">
+
+      <!-- OFX PANEL -->
+      <div class="bank-panel active" id="panel-ofx">
+        <div class="bank-grid">
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon green">🟢</div>
+              <div class="bank-name">Sicredi</div>
+            </div>
+            <span class="bank-format ofx">OFX</span>
+            <ul class="bank-steps">
+              <li data-n="1">Acesse o Internet Banking</li>
+              <li data-n="2">Vá em <strong>Extrato</strong></li>
+              <li data-n="3">Selecione o período desejado</li>
+              <li data-n="4">Clique em <strong>Exportar → OFX</strong></li>
+            </ul>
+          </div>
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon green">🔴</div>
+              <div class="bank-name">Bradesco</div>
+            </div>
+            <span class="bank-format ofx">OFX</span>
+            <ul class="bank-steps">
+              <li data-n="1">Acesse o Internet Banking</li>
+              <li data-n="2">Vá em <strong>Conta Corrente → Extrato</strong></li>
+              <li data-n="3">Selecione o período</li>
+              <li data-n="4">Clique em <strong>Exportar OFX</strong></li>
+            </ul>
+          </div>
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon amber">🟠</div>
+              <div class="bank-name">Itaú</div>
+            </div>
+            <span class="bank-format ofx">OFX</span>
+            <ul class="bank-steps">
+              <li data-n="1">Acesse o Internet Banking</li>
+              <li data-n="2">Vá em <strong>Extrato</strong></li>
+              <li data-n="3">Selecione o período</li>
+              <li data-n="4">Clique em <strong>Baixar OFX</strong></li>
+            </ul>
+          </div>
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon blue">🔵</div>
+              <div class="bank-name">Banco do Brasil</div>
+            </div>
+            <span class="bank-format ofx">OFX</span>
+            <ul class="bank-steps">
+              <li data-n="1">Acesse o Internet Banking</li>
+              <li data-n="2">Vá em <strong>Minhas Finanças → Extrato</strong></li>
+              <li data-n="3">Selecione o período</li>
+              <li data-n="4">Clique em <strong>Exportar → OFX</strong></li>
+            </ul>
+          </div>
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon green">🟤</div>
+              <div class="bank-name">Santander</div>
+            </div>
+            <span class="bank-format ofx">OFX</span>
+            <ul class="bank-steps">
+              <li data-n="1">Acesse o Internet Banking</li>
+              <li data-n="2">Vá em <strong>Extrato</strong></li>
+              <li data-n="3">Selecione o período</li>
+              <li data-n="4">Clique em <strong>Exportar OFX</strong></li>
+            </ul>
+          </div>
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon blue">🟦</div>
+              <div class="bank-name">Banco Inter</div>
+            </div>
+            <span class="bank-format ofx">OFX</span>
+            <ul class="bank-steps">
+              <li data-n="1">Acesse o app ou site</li>
+              <li data-n="2">Vá em <strong>Extrato</strong></li>
+              <li data-n="3">Toque em <strong>Exportar</strong></li>
+              <li data-n="4">Escolha o formato <strong>OFX</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PDF PANEL -->
+      <div class="bank-panel" id="panel-pdf">
+        <div class="bank-grid">
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon blue">⚫</div>
+              <div class="bank-name">C6 Bank</div>
+            </div>
+            <span class="bank-format pdf">PDF</span>
+            <ul class="bank-steps">
+              <li data-n="1">Abra o app C6 Bank</li>
+              <li data-n="2">Vá em <strong>Extrato</strong></li>
+              <li data-n="3">Selecione o período</li>
+              <li data-n="4">Toque em <strong>Compartilhar → PDF</strong></li>
+            </ul>
+          </div>
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon green">🟣</div>
+              <div class="bank-name">Nubank</div>
+            </div>
+            <span class="bank-format pdf">PDF</span>
+            <ul class="bank-steps">
+              <li data-n="1">Abra o app Nubank</li>
+              <li data-n="2">Toque em <strong>Extrato</strong></li>
+              <li data-n="3">Toque nos <strong>3 pontinhos</strong> no canto</li>
+              <li data-n="4">Selecione <strong>Exportar PDF</strong></li>
+            </ul>
+          </div>
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon amber">🟡</div>
+              <div class="bank-name">PicPay</div>
+            </div>
+            <span class="bank-format pdf">PDF</span>
+            <ul class="bank-steps">
+              <li data-n="1">Abra o app PicPay</li>
+              <li data-n="2">Vá em <strong>Extrato</strong></li>
+              <li data-n="3">Toque em <strong>Exportar</strong></li>
+              <li data-n="4">Salve como <strong>PDF</strong></li>
+            </ul>
+          </div>
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon blue">🔷</div>
+              <div class="bank-name">Mercado Pago</div>
+            </div>
+            <span class="bank-format pdf">PDF</span>
+            <ul class="bank-steps">
+              <li data-n="1">Acesse o app ou site</li>
+              <li data-n="2">Vá em <strong>Atividade</strong></li>
+              <li data-n="3">Selecione o período</li>
+              <li data-n="4">Clique em <strong>Baixar PDF</strong></li>
+            </ul>
+          </div>
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon amber">🟠</div>
+              <div class="bank-name">Caixa Econômica</div>
+            </div>
+            <span class="bank-format pdf">PDF</span>
+            <ul class="bank-steps">
+              <li data-n="1">Acesse o Internet Banking</li>
+              <li data-n="2">Vá em <strong>Extrato</strong></li>
+              <li data-n="3">Selecione o período</li>
+              <li data-n="4">Clique em <strong>Imprimir/PDF</strong></li>
+            </ul>
+          </div>
+        </div>
+        <div class="warn-box">
+          ⚠️ <span>PDFs escaneados (foto do extrato) não funcionam. O PDF precisa ser gerado diretamente pelo banco, com texto selecionável.</span>
+        </div>
+      </div>
+
+      <!-- INFO PANEL -->
+      <div class="bank-panel" id="panel-info">
+        <div class="bank-grid">
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon green">✅</div>
+              <div class="bank-name">Formato OFX</div>
+            </div>
+            <span class="bank-format ofx">Recomendado</span>
+            <ul class="bank-steps">
+              <li data-n="→">Maior precisão na leitura</li>
+              <li data-n="→">Todos os dados estruturados</li>
+              <li data-n="→">Processamento mais rápido</li>
+              <li data-n="→">Disponível nos bancos tradicionais</li>
+            </ul>
+          </div>
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon blue">📄</div>
+              <div class="bank-name">Formato PDF</div>
+            </div>
+            <span class="bank-format pdf">Alternativo</span>
+            <ul class="bank-steps">
+              <li data-n="→">Funciona bem para a maioria dos bancos</li>
+              <li data-n="→">Precisa ter texto selecionável</li>
+              <li data-n="→">Não funciona se for foto/scan</li>
+              <li data-n="→">Ideal para C6, Nubank, PicPay</li>
+            </ul>
+          </div>
+          <div class="bank-card">
+            <div class="bank-card-header">
+              <div class="bank-icon amber">📊</div>
+              <div class="bank-name">Formato CSV</div>
+            </div>
+            <span class="bank-format csv">Alternativo</span>
+            <ul class="bank-steps">
+              <li data-n="→">Aceito por alguns bancos</li>
+              <li data-n="→">Planilha com as transações</li>
+              <li data-n="→">Funciona bem no FinanFácil</li>
+              <li data-n="→">Geralmente disponível no Internet Banking</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- PROCESSING -->
@@ -1250,6 +1586,19 @@ function toBase64(file) {
     r.readAsDataURL(file);
   });
 }
+function switchTab(tab) {
+  document.querySelectorAll('.bank-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.bank-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('[onclick="switchTab(\'' + tab + '\')"]').classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+// Hide bank guide when processing/results shown
+const origReset = resetApp;
+resetApp = function() {
+  origReset();
+  document.getElementById('bankGuide').style.display = '';
+};
 </script>
 </body>
 </html>
